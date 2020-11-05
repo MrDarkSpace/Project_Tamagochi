@@ -6,6 +6,7 @@ class Tamagochi:     #Основной класс, от которо потом 
   face = ''
   state = 'OK'
   toi_number = 0
+  all_time = 0
 
   def __new__(cls, food=50, cleanness=50, health=100, age=0): #Задаем начальные значения характеристик
     cls.Food = food                                           #Еда
@@ -24,7 +25,8 @@ class Tamagochi:     #Основной класс, от которо потом 
     self.Cleanness = self.Cleanness - int((time.time()-st)//3)*(1+self.toi_number)
 
   def plus_age(self, st): #Рост Возраста
-    self.Age = self.Age + int((time.time()-st)//30)
+    self.all_time += time.time()-st
+    self.Age = self.Age + int(self.all_time//30)
 
   def health_drop(self, st): #Падение со временем Здоровья
     if (self.Food <= 30) or (self.Cleanness <= 30):
