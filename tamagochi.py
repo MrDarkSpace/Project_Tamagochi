@@ -2,36 +2,37 @@ import sys
 import time
 
 
-class Tamagochi:
+class Tamagochi:     #Основной класс, от которо потом будем наследоваться
   face = ''
   state = 'OK'
   toi_number = 0
-  def __new__(cls, food=50, cleanness=50, health=100, age=0):
-    cls.Food = food
-    cls.Cleanness = cleanness
-    cls.Health = health
-    cls.Age = age
+
+  def __new__(cls, food=50, cleanness=50, health=100, age=0): #Задаем начальные значения характеристик
+    cls.Food = food                                           #Еда
+    cls.Cleanness = cleanness                                 #Чистота
+    cls.Health = health                                       #Здоровье
+    cls.Age = age                                             #Возраст
     return super().__new__(cls)
 
   def __init__(self):
     print("You've sheltered your pet, congratulations!")
 
-  def food_drop(self, st):
+  def food_drop(self, st):  #Падение со временем Еды
     self.Food = self.Food - int((time.time()-st)//3)
 
-  def clnns_drop(self, st):
+  def clnns_drop(self, st):   #Падение со временем Чистоты
     self.Cleanness = self.Cleanness - int((time.time()-st)//3)*(1+self.toi_number)
 
-  def plus_age(self, st):
+  def plus_age(self, st): #Рост Возраста
     self.Age = self.Age + int((time.time()-st)//30)
 
-  def health_drop(self, st):
+  def health_drop(self, st): #Падение со временем Здоровья
     if (self.Food <= 30) or (self.Cleanness <= 30):
       self.Health = self.Health - int((time.time()-st)//3)
     else:
       self.Health = self.Health - int((time.time() - st) // 10)
 
-  def feed(self):
+  def feed(self):    #Процесс Кормления
     feedtype = str(input('Choose serving size: \'1\' (+5 Food), \'2\' (+10 Food) or \'3\' (+20 Food).\n'))
     while True:
       if (feedtype == '1') or (feedtype == '2') or (feedtype == '3'):
@@ -42,20 +43,20 @@ class Tamagochi:
       else:
         feedtype = input('Sorry, but I don\'t understand you :( Can you type one more time?\n')
 
-  def wash(self):
+  def wash(self):     #Процесс помывки
     self.Cleanness += 50
     if (self.Cleanness >= 100):
       self.Cleanness = 100
 
-  def cure(self):
+  def cure(self):     #Процесс Лечения
     self.Health += 30
     if (self.Health >= 100):
       self.Health = 100
 
-  def toilet(self):
+  def toilet(self):   #Автопроцесс хождения в туалет
     self.toi_number += 1
 
-  def clean_toilet(self):
+  def clean_toilet(self):  #Процесс Очистки Туалета
     self.toi_number -= 1
     if self.toi_number < 0:
       self.toi_number = 0
