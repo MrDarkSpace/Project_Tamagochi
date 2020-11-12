@@ -7,43 +7,67 @@ class Tamagochi:     #Основной класс, от которо потом 
   state = 'OK'
   toi_number = 0
   all_time = 0
+  part_food = 0
+  part_cln = 0
+  part_hea = 0
+  feed_num = {'1': 5, '2': 10, '3': 20}
 
-  def __new__(cls, food=50, cleanness=50, health=100, age=0): #Задаем начальные значения характеристик
-    cls.Food = food                                           #Еда
-    cls.Cleanness = cleanness                                 #Чистота
-    cls.Health = health                                       #Здоровье
-    cls.Age = age                                             #Возраст
-    return super().__new__(cls)
 
-  def __init__(self):
+  def __init__(self, food=50, cleanness=50, health=100, age=0):
+                                      #Задаем начальные значения характеристик
+    self.Food = food  # Еда
+    self.Cleanness = cleanness  # Чистота
+    self.Health = health  # Здоровье
+    self.Age = age  # Возраст
     print("You've sheltered your pet, congratulations!")
 
   def food_drop(self, st):  #Падение со временем Еды
-    self.Food = self.Food - int((time.time()-st)//3)
+    loss = ((time.time() - st + self.part_food)//1)//3
+    if (loss != 0):
+      self.Food = self.Food - int(loss)
+      self.part_food = time.time() - st + self.part_food - loss*3
+    else:
+      self.part_food += (time.time() - st)
 
   def clnns_drop(self, st):   #Падение со временем Чистоты
-    self.Cleanness = self.Cleanness - int((time.time()-st)//3)*(1+self.toi_number)
+    loss = ((time.time() - st + self.part_cln) // 1) // 3
+    if (loss != 0):
+      self.Cleanness = self.Cleanness - int(loss)*(1+self.toi_number)
+      self.part_cln = time.time() - st + self.part_cln - loss * 3
+    else:
+      self.part_cln += (time.time() - st)
 
   def plus_age(self, st): #Рост Возраста
     self.all_time += time.time()-st
-    self.Age = self.Age + int(self.all_time//30)
+    self.Age = int(self.all_time//30)
 
   def health_drop(self, st): #Падение со временем Здоровья
-    if (self.Food <= 30) or (self.Cleanness <= 30):
-      self.Health = self.Health - int((time.time()-st)//3)
+    loss = (time.time() - st + self.part_hea) // 1
+    loss1 = loss // 3
+    loss2 = loss // 9
+    if (loss1 != 0):
+      if (self.Food <= 30) or (self.Cleanness <= 30):
+        final_loss = loss1
+        final_add = 3
+      else:
+        final_loss = loss2
+        final_add = 9
+      self.Health = self.Health - int(final_loss)
+      self.part_hea = time.time() - st + self.part_hea - final_loss * final_add
     else:
-      self.Health = self.Health - int((time.time() - st) // 10)
+      self.part_hea += (time.time() - st)
+
 
   def feed(self):    #Процесс Кормления
-    feedtype = str(input('Choose serving size: \'1\' (+5 Food), \'2\' (+10 Food) or \'3\' (+20 Food).\n'))
+    feedtype = str(input('Choose serving size: \'1\' '
+                         '(+5 Food), \'2\' (+10 Food) or \'3\' (+20 Food).\n'))
     while True:
-      if (feedtype == '1') or (feedtype == '2') or (feedtype == '3'):
-        self.Food += 5*int(feedtype) + (int(feedtype)//3)*5
-        if (self.Food >= 100):
-          self.Food = 100
+      if feedtype in ('1', '2', '3'):
+        self.Food += self.feed_num[feedtype]
         break
       else:
-        feedtype = input('Sorry, but I don\'t understand you :( Can you type one more time?\n')
+        feedtype = input('Sorry, but I don\'t '
+                         'understand you :( Can you type one more time?\n')
 
   def wash(self):     #Процесс помывки
     self.Cleanness += 50
@@ -65,7 +89,8 @@ class Tamagochi:     #Основной класс, от которо потом 
 
 
 class Cat(Tamagochi):
-  face = '         ／＞　 フ \n　　　　　| 　_　 _| \n　 　　　／`ミ _x 彡 \n　　 　 /　　　 　 | \n　　　 /　 ヽ　　 ﾉ \n' + \
+  face = '         ／＞　 フ \n　　　　　| 　_　 _| \n' \
+         '　 　　　／`ミ _x 彡 \n　　 　 /　　　 　 | \n　　　 /　 ヽ　　 ﾉ \n' + \
          '　／￣|　　 |　|　| \n　| (￣ヽ＿_ヽ_)_) \n　＼二つ          '
   def __init__(self):
     super().__init__()
@@ -73,7 +98,9 @@ class Cat(Tamagochi):
 
 
 class Dog(Tamagochi):
-  face = '  ╱▔▔▔▔▔╲  \n╭┫╭━╮┈╭━╮┣╮\n┃┃┃▇┃┈┃▇┃┃┃\n┃┃╰╱▔▇▔╲╯┃┃\n┃┃▕╰┳┻┳╯▏┃┃\n╰╯╲╲╰━╯╱╱╰╯\n   ┃▔▔▔ ╲  ╮\n   ┃    ╲ ┃\n' +\
+  face = '  ╱▔▔▔▔▔╲  \n╭┫╭━╮┈╭━╮┣╮\n┃┃┃▇┃┈┃▇┃┃┃\n' \
+         '┃┃╰╱▔▇▔╲╯┃┃\n┃┃▕╰┳┻┳╯▏┃┃\n╰╯╲╲╰━╯╱╱╰╯\n   ' \
+         '┃▔▔▔ ╲  ╮\n   ┃    ╲ ┃\n' +\
          '   ┃┏┓┃ ╭ ╲╯\n   ┃┃┃┃╭┛  ┃\n   ┗┛┗┛┗━━━╯'
   def __init__(self):
     super().__init__()
@@ -81,7 +108,8 @@ class Dog(Tamagochi):
 
 
 class Goat(Tamagochi):
-  face = '  ╱▔▔▔▔▔▔╲╲     \n ╱╳╱▔▔▔▔╲╳╲╲    \n╱╳╱     ▏╋▏▏   \n▏╋▏  ▕▔╲▂▏╋▏▏   \n▏╋▏   ╲▂ ╭▅╮╲▂▂ \n╲╳╲▂╱▏ ╱▏     ▅▏\n' \
+  face = '  ╱▔▔▔▔▔▔╲╲     \n ╱╳╱▔▔▔▔╲╳╲╲    \n╱╳╱     ▏╋▏▏   \n' \
+         '▏╋▏  ▕▔╲▂▏╋▏▏   \n▏╋▏   ╲▂ ╭▅╮╲▂▂ \n╲╳╲▂╱▏ ╱▏     ▅▏\n' \
          + ' ╲╳╋╱ ╱ ╲   ╰━━▏\n  ▔▔ ╱   ╱▔╲╲▕▔ '
   def __init__(self):
     super().__init__()
@@ -90,47 +118,53 @@ class Goat(Tamagochi):
 
 def play():
 
-  animaltype = input('Hello! I\'m very happy that you\'re playing my game!\n' +
-                 'You can choose your pet. In our shelter there are cats, dogs and goats. ' +
-                 'Who would you like to shelter? (print \'c\', \'d\' or \'g\')\n')
+  animaltype = input('Hello! I\'m very happy that '
+                     'you\'re playing my game!\n' +
+                 'You can choose your pet. '
+                 'In our shelter there are cats, dogs '
+                 'and goats. ' +
+                 'Who would you like to shelter? '
+                 '(print \'c\', \'d\' or \'g\')\n')
 
+  an_create = {'c': Cat, 'd': Dog, 'g': Goat}
   while True:
-    if (animaltype == 'c'):
-      animal = Cat()
-      break
-    elif (animaltype == 'd'):
-      animal = Dog()
-      break
-    elif (animaltype == 'g'):
-      animal = Goat()
+    if animaltype in an_create:
+      animal = an_create[animaltype]()
       break
     else:
-      animaltype = input('Sorry, but I don\'t understand you :( Can you type one more time?\n')
+      animaltype = input('Sorry, but I don\'t understand you :( '
+                         'Can you type one more time?\n')
 
 
 
   animal.name = input('Now you should name your pet. Choose wisely.\n')
-  print('Wow! Great name: ' + animal.name + '.\nSo, now we are starting our game! Be very attentive to your ' +
-        animal.name + '!')
+  print('Wow! Great name: ' + animal.name + '.\nSo, now we are starting '
+                                            'our game! Be very attentive to '
+                                            'your ' + animal.name + '!')
 
   start_time = time.time()
   feedback = ""
 
   while True:
+    animal.plus_age(start_time)
     animal.food_drop(start_time)
     animal.clnns_drop(start_time)
     animal.health_drop(start_time)
-    animal.plus_age(start_time)
+
 
     start_time = time.time()
 
-    if (animal.Food > 80) and (animal.Cleanness > 80) and (animal.Health > 80):
+    if all([animal.Food > 80, animal.Cleanness > 80,\
+            animal.Health > 80]):
       animal.state = 'Delighted'
-    elif (animal.Food > 50) and (animal.Cleanness > 50) and (animal.Health > 50):
+    elif all([animal.Food > 50, animal.Cleanness > 50, \
+            animal.Health > 50]):
       animal.state = 'Happy'
-    elif (animal.Food > 30) and (animal.Cleanness > 30) and (animal.Health > 30):
+    elif all([animal.Food > 30, animal.Cleanness > 30, \
+            animal.Health > 30]):
       animal.state = 'OK'
-    elif (animal.Food > 0) and (animal.Cleanness > 0) and (animal.Health > 0):
+    elif all([animal.Food > 0, animal.Cleanness > 0, \
+            animal.Health > 0]):
       animal.state = 'Sad'
     else:
       print ("That\'s very awful! Your " + animal.name + ' Died!\nGame over!')
@@ -140,9 +174,12 @@ def play():
       animal.toilet()
       animal.Food = 95
 
-    feedback = animal.face + animal.name + ' is ' + animal.state + " 💩"*animal.toi_number + "\n" +\
+    feedback = animal.face + animal.name + ' is ' + animal.state + \
+               (" " + chr(128169))*animal.toi_number + "\n" +\
                str(animal.Food) + " Food  " + \
-               str(animal.Cleanness) + " Cleanness  " + str(animal.Health) + " Health  " + str(animal.Age) + " years  "
+               str(animal.Cleanness) + " Cleanness  " + \
+               str(animal.Health) + " Health  " + \
+               str(animal.Age) + " years  "
     action = input(feedback + "\n")
     words = action.split()
 
